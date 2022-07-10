@@ -3,6 +3,14 @@
 
 <head>
     <title>Narrative Visualization</title>
+    <style>
+        .bar {
+            fill: steelblue;
+        }
+        .tick line {
+            stroke: #EBEBEB;
+        }
+    </style>
 </head>
 
 <body onload="init()">
@@ -11,6 +19,9 @@
 
     <!-- Load d3-annotation -->
     <script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+
+    <!-- Load d3-legend -->
+    <script src="https://rawgit.com/susielu/d3-legend/master/d3-legend.min.js"></script>
 
     <!-- Create a div where the graph will take place -->
     <div id="narrative_visualization"></div>

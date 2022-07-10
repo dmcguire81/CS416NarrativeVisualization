@@ -1,91 +1,132 @@
+function average(rawData) {
+    const makes = [...new Set(rawData.map(d => { return d.Make; }))];
+
+    var data = makes.map(m => {
+        const makeData = rawData.filter(d => { return d.Make == m; });
+        const meanAverageCityMPG = d3.mean(makeData.map(d => { return d.AverageCityMPG; }));
+        const meanAverageHighwayMPG = d3.mean(makeData.map(d => { return d.AverageHighwayMPG; }));
+
+        return {
+            Make: m,
+            EngineCylinders: d3.mean(makeData.map(d => { return d.EngineCylinders; })),
+            AverageCityMPG: meanAverageCityMPG,
+            AverageHighwayMPG: meanAverageHighwayMPG,
+            AverageCombinedMPG: (meanAverageCityMPG + meanAverageHighwayMPG) / 2.0,
+        };
+    });
+
+    return data;
+}
+
 async function init() {
+    const measure = "AverageCityMPG";
+    //const measure = "AverageHighwayMPG";
+    //const measure = "AverageCombinedMPG";
+    const measureLabel = measure.replace(/([a-z])([A-Z])/g, '$1 $2');
+
     // set the dimensions and margins of the graph
-    var margin = { top: 10, right: 30, bottom: 40, left: 50 },
-        width = 520 - margin.left - margin.right,
-        height = 520 - margin.top - margin.bottom;
+    var margin = { top: 10, right: 100, bottom: 40, left: 100 },
+        width = 800 - margin.left - margin.right,
+        height = 650 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
-    var Svg = d3.select("#narrative_visualization")
+    var svg = d3.select("#narrative_visualization")
         .append("svg")
         .attr("width", width + margin.left + margin.right)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")")
+            "translate(" + margin.left + "," + margin.top + ")");
 
-    //Read the data
-    const data = await d3.csv("https://raw.githubusercontent.com/holtzy/D3-graph-gallery/master/DATA/iris.csv");
+    //Read and process the data
+    const rawData = await d3.csv("https://flunky.github.io/cars2017.csv");
+    var data = average(rawData);
+    data.sort((a, b) => { return a[measure] - b[measure]; });
 
     // Add X axis
     var x = d3.scaleLinear()
-        .domain([4 * 0.95, 8 * 1.001])
-        .range([0, width])
-    Svg.append("g")
+        .domain([0, 150])
+        .range([0, width]);
+    svg.append("g")
         .attr("transform", "translate(0," + height + ")")
-        .call(d3.axisBottom(x).tickSize(-height * 1.3).ticks(10))
-        .select(".domain").remove()
+        .call(d3.axisBottom(x).tickSize(-height * 1.3))
+        .select(".domain").remove();
 
     // Add Y axis
-    var y = d3.scaleLinear()
-        .domain([-0.001, 9 * 1.01])
-        .range([height, 0])
-        .nice()
-    Svg.append("g")
-        .call(d3.axisLeft(y).tickSize(-width * 1.3).ticks(7))
-        .select(".domain").remove()
-
-    // Customization
-    Svg.selectAll(".tick line").attr("stroke", "#EBEBEB")
+    var y = d3.scaleBand()
+        .domain(data.map(d => { return d.Make; }))
+        .range([height, 0]);
+    svg.append("g")
+        .call(d3.axisLeft(y))
+        .select(".domain").remove();
 
     // Add X axis label:
-    Svg.append("text")
+    svg.append("text")
         .attr("text-anchor", "end")
         .attr("x", width)
         .attr("y", height + margin.top + 20)
-        .text("Sepal Length");
+        .text(measureLabel);
 
     // Y axis label:
-    Svg.append("text")
+    svg.append("text")
         .attr("text-anchor", "end")
         .attr("transform", "rotate(-90)")
         .attr("y", -margin.left + 20)
         .attr("x", -margin.top)
-        .text("Petal Length")
+        .text("Make");
 
-    // Color scale: give me a specie name, I return a color
-    var color = d3.scaleOrdinal()
-        .domain(["setosa", "versicolor", "virginica"])
-        .range(["#402D54", "#D18975", "#8FD175"])
+    // Color scale: light blue (0 Cylinders) to dark blue (12 Cylinders)
+    var color = d3.scaleLinear()
+        .domain([0, 12])
+        .range(["lightblue", "darkblue"]);
 
-    // Add dots
-    Svg.append('g')
-        .selectAll("dot")
+    // Add bars
+    svg.append('g')
+        .selectAll(".bar")
         .data(data)
-        .enter()
-        .append("circle")
-        .attr("cx", function (d) { return x(d.Sepal_Length); })
-        .attr("cy", function (d) { return y(d.Petal_Length); })
-        .attr("r", 5)
-        .style("fill", function (d) { return color(d.Species) })
+        .enter().append("rect")
+        .attr("class", "bar")
+        .attr("x", () => { return 0; })
+        .attr("y", d => { return y(d.Make); })
+        .attr("height", y.bandwidth())
+        .attr("width", d => { return x(d[measure]); })
+        .style("fill", d => { return color(d.EngineCylinders) });
+
+    // Add legend
+    legendWidth = 30
+    svg.append("g")
+        .attr("class", "legendLinear")
+        .attr("transform", "translate(" + (width - legendWidth) + "," + margin.top + ")");
+
+    var legendLinear = d3.legendColor()
+        .shapeWidth(legendWidth)
+        .cells(13)
+        .orient('vertical')
+        .title("Engine Cylinders")
+        .labelFormat(d3.format(".0f"))
+        .scale(color);
+
+    svg.select(".legendLinear")
+        .call(legendLinear);
 
     // Features of the annotation
     const annotations = [
         {
             note: {
-                label: "Here is the area of high overlap between species",
-                title: "Overlap"
+                label: "Tesla appears dominant in " + measureLabel,
+                title: "Dominant"
             },
-            x: 250,
-            y: 220,
-            dy: 100,
-            dx: 100
+            x: 350,
+            y: 10,
+            dy: 50,
+            dx: 50
         }
-    ]
+    ];
 
     // Add annotation to the chart
     const makeAnnotations = d3.annotation()
-        .annotations(annotations)
-    Svg
+        .annotations(annotations);
+    svg
         .append("g")
-        .call(makeAnnotations)
+        .call(makeAnnotations);
 }
