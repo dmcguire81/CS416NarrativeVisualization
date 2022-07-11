@@ -66,7 +66,7 @@ async function init() {
 
     // Add X axis label:
     const measureLabel = measure.replace(/([a-z])([A-Z])/g, '$1 $2');
-    svg.append("text")
+    var xLabel = svg.append("text")
         .attr("text-anchor", "end")
         .attr("x", width)
         .attr("y", height + margin.top + 20)
@@ -157,7 +157,7 @@ async function init() {
             d3.select('p#slider-label').text(
                 formatSliderLabel(cylinderRange)
             );
-            update(cylinderRange, selectedFuel);
+            update(cylinderRange, selectedFuel, measure);
         });
     
     var gRange = d3.select('div#slider-range')
@@ -174,7 +174,8 @@ async function init() {
     );
 
     d3.select("form#checkbox-selection")
-        .selectAll(("input")).on("change", function() {
+        .selectAll(("input"))
+        .on("change", function() {
             if (this.checked) {
                 selectedFuel = selectedFuel.filter(d => { return d != this.value; });
             }
@@ -183,14 +184,16 @@ async function init() {
                 selectedFuel.push(this.value);
                 selectedFuel.sort();
             }
-            update(cylinderRange, selectedFuel);
+            update(cylinderRange, selectedFuel, measure);
         });
 
-    d3.select('p#checkbox-label').text(
-        "Exclude Fuel Type:"
-    );
+    d3.select("select#dropdown-selection")
+        .on("change", function() {
+            measure = this.value;
+            update(cylinderRange, selectedFuel, measure);
+        });
 
-    function update(cylinderRange, selectedFuel) {
+    function update(cylinderRange, selectedFuel, measure) {
         // Process data according to parameters
         const inSelectedFuel = d => { return selectedFuel.includes(d.Fuel); };
         const inCylinderRange = d => { return d.EngineCylinders >= cylinderRange[0] && d.EngineCylinders <= cylinderRange[1]; };
@@ -213,7 +216,11 @@ async function init() {
                 .attr("height", y.bandwidth())
                 .attr("width", d => { return x(d[measure]); })
                 .style("fill", d => { return color(d.EngineCylinders) });
+
+        // Update label
+        const measureLabel = measure.replace(/([a-z])([A-Z])/g, '$1 $2');
+        xLabel.text(measureLabel);
     }
 
-    update(cylinderRange, selectedFuel);
+    update(cylinderRange, selectedFuel, measure);
 }

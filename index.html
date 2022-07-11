@@ -14,7 +14,7 @@
 
         .grid-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr;
             grid-gap: 20px;
         }
     </style>
@@ -54,18 +54,38 @@
             <!-- Create a compound control for the Fuel type selection -->
             <div class="row align-items-center">
                 <div class="col-sm-2">
-                    <p id="checkbox-label"></p>
+                    <p id="checkbox-label">
+                        Exclude Fuel Type:
+                    </p>
                 </div>
                 <div class="col-sm">
-                    <form id="checkbox-selection">
-                        <input type="checkbox" value="Diesel">Diesel<br>
-                        <input type="checkbox" value="Electricity" >Electricity<br>
-                        <input type="checkbox" value="Gasoline">Gasoline<br>
+                    <form id="checkbox-selection" autocomplete="off">
+                        <input type="checkbox" value="Diesel" unchecked>Diesel<br>
+                        <input type="checkbox" value="Electricity" unchecked>Electricity<br>
+                        <input type="checkbox" value="Gasoline" unchecked>Gasoline<br>
                     </form>
                 </div>
             </div>
         </div>
         
+        <div class="grid-child">
+            <!-- Create a compound control for the Measure selection -->
+            <div class="row align-items-center">
+                <div class="col-sm-2">
+                    <p id="dropdown-label">
+                        Select Measure:
+                    </p>
+                </div>
+                <div class="col-sm">
+                    <select id="dropdown-selection" autocomplete="off">
+                        <option value="AverageCityMPG" selected>Average City MPG</option>
+                        <option value="AverageHighwayMPG">Average Highway MPG</option>
+                        <option value="AverageCombinedMPG">Average Combined MPG</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
       </div>
 
     <!-- Load custom code -->
