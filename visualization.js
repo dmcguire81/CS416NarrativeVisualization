@@ -1,8 +1,6 @@
-function average(rawData) {
-    const makes = [...new Set(rawData.map(d => { return d.Make; }))];
-
-    var data = makes.map(m => {
-        const makeData = rawData.filter(d => { return d.Make == m; });
+function averageOverMake(makes, data) {
+    var averagedData = makes.map(m => {
+        const makeData = data.filter(d => { return d.Make == m; });
         const meanAverageCityMPG = d3.mean(makeData.map(d => { return d.AverageCityMPG; }));
         const meanAverageHighwayMPG = d3.mean(makeData.map(d => { return d.AverageHighwayMPG; }));
 
@@ -15,19 +13,23 @@ function average(rawData) {
         };
     });
 
-    return data;
+    return averagedData;
 }
 
 async function init() {
-    const measure = "AverageCityMPG";
-    //const measure = "AverageHighwayMPG";
-    //const measure = "AverageCombinedMPG";
-    const measureLabel = measure.replace(/([a-z])([A-Z])/g, '$1 $2');
+    // Set the static parameters
+    var measure = "AverageCityMPG";
+    var selectedFuel = ["Diesel", "Electricity", "Gasoline"];
+    var cylinderRange = [0, 12];
+
+    //Read the raw data and extract the unique car makes
+    const rawData = await d3.csv("https://flunky.github.io/cars2017.csv");
+    const makes = [...new Set(rawData.map(d => { return d.Make; }))];
 
     // set the dimensions and margins of the graph
-    var margin = { top: 10, right: 100, bottom: 40, left: 100 },
-        width = 800 - margin.left - margin.right,
-        height = 650 - margin.top - margin.bottom;
+    const margin = { top: 10, right: 100, bottom: 40, left: 100 };
+    const width = 800 - margin.left - margin.right;
+    const height = 650 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
     var svg = d3.select("#narrative_visualization")
@@ -38,9 +40,11 @@ async function init() {
         .attr("transform",
             "translate(" + margin.left + "," + margin.top + ")");
 
-    //Read and process the data
-    const rawData = await d3.csv("https://flunky.github.io/cars2017.csv");
-    var data = average(rawData);
+    // Process data according to parameters
+    const inSelectedFuel = d => { return selectedFuel.includes(d.Fuel); };
+    const inCylinderRange = d => { return d.EngineCylinders >= cylinderRange[0] && d.EngineCylinders <= cylinderRange[1]; };
+    const filteredData = rawData.filter(inSelectedFuel).filter(inCylinderRange);
+    var data = averageOverMake(makes, filteredData);
     data.sort((a, b) => { return a[measure] - b[measure]; });
 
     // Add X axis
@@ -61,6 +65,7 @@ async function init() {
         .select(".domain").remove();
 
     // Add X axis label:
+    const measureLabel = measure.replace(/([a-z])([A-Z])/g, '$1 $2');
     svg.append("text")
         .attr("text-anchor", "end")
         .attr("x", width)
@@ -77,14 +82,15 @@ async function init() {
 
     // Color scale: light blue (0 Cylinders) to dark blue (12 Cylinders)
     var color = d3.scaleLinear()
-        .domain([0, 12])
+        .domain(cylinderRange)
         .range(["lightblue", "darkblue"]);
 
     // Add bars
     svg.append('g')
         .selectAll(".bar")
         .data(data)
-        .enter().append("rect")
+        .enter()
+        .append("rect")
         .attr("class", "bar")
         .attr("x", () => { return 0; })
         .attr("y", d => { return y(d.Make); })
@@ -93,7 +99,7 @@ async function init() {
         .style("fill", d => { return color(d.EngineCylinders) });
 
     // Add legend
-    legendWidth = 30
+    legendWidth = 30;
     svg.append("g")
         .attr("class", "legendLinear")
         .attr("transform", "translate(" + (width - legendWidth) + "," + margin.top + ")");
@@ -128,5 +134,68 @@ async function init() {
         .annotations(annotations);
     svg
         .append("g")
-        .call(makeAnnotations);
+        .call(makeAnnotations);        
+
+    // Add Engine Cylinders slider
+    const formatSliderLabel = range => { 
+        return "Engine Cylinders - (" +
+            range
+                .map(d3.format('1.0f'))
+                .join(' - ')
+            + ")"
+    };
+    var sliderRange = d3.sliderBottom()
+        .min(0)
+        .max(12)
+        .width(300)
+        .tickFormat(d3.format('2.0f'))
+        .ticks(13)
+        .default([0, 12])
+        .fill('#2196f3')
+        .on('end', cylinderRange => {
+            d3.select('p#slider-label').text(
+                formatSliderLabel(cylinderRange)
+            );
+            update(cylinderRange)
+        });
+    
+    var gRange = d3.select('div#slider-range')
+        .append('svg')
+        .attr('width', 500)
+        .attr('height', 100)
+        .append('g')
+        .attr('transform', 'translate(30,30)');
+    
+    gRange.call(sliderRange);
+    
+    d3.select('p#slider-label').text(
+        formatSliderLabel(sliderRange.value())
+    );
+
+    function update(cylinderRange) {
+        // Process data according to parameters
+        const inSelectedFuel = d => { return selectedFuel.includes(d.Fuel); };
+        const inCylinderRange = d => { return d.EngineCylinders >= cylinderRange[0] && d.EngineCylinders <= cylinderRange[1]; };
+        const filteredData = rawData.filter(inSelectedFuel).filter(inCylinderRange);
+        var data = averageOverMake(makes, filteredData);
+
+        // Update bars
+        updateBars = svg.selectAll(".bar")
+            .data(data);
+        
+        updateBars
+            .enter()
+            .append("rect")
+            .merge(updateBars)
+            .transition()
+            .duration(1000)
+                .attr("class", "bar")
+                .attr("x", () => { return 0; })
+                .attr("y", d => { return y(d.Make); })
+                .attr("height", y.bandwidth())
+                .attr("width", d => { return x(d[measure]); })
+                .style("fill", d => { return color(d.EngineCylinders) });
+    }
+
+    update(cylinderRange);
 }

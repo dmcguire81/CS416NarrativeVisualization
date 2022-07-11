@@ -7,6 +7,7 @@
         .bar {
             fill: steelblue;
         }
+
         .tick line {
             stroke: #EBEBEB;
         }
@@ -23,8 +24,22 @@
     <!-- Load d3-legend -->
     <script src="https://rawgit.com/susielu/d3-legend/master/d3-legend.min.js"></script>
 
+    <!-- Load d3-simple-slider -->
+    <script src="https://unpkg.com/d3-simple-slider"></script>
+
     <!-- Create a div where the graph will take place -->
     <div id="narrative_visualization"></div>
 
+    <!-- Create a compound control for the Engine Cylinder slider -->
+    <div class="row align-items-center">
+        <div class="col-sm-2">
+            <p id="slider-label"></p>
+        </div>
+        <div class="col-sm">
+            <div id="slider-range"></div>
+        </div>
+    </div>
+
+    <!-- Load custom code -->
     <script src="visualization.js" type="text/JavaScript"></script>
 </body>
