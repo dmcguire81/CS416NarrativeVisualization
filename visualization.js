@@ -17,7 +17,8 @@ function averageOverMake(makes, data) {
 }
 
 async function init() {
-    // Set the static parameters
+    // Set the default parameters
+    var scene = 1;
     var measure = "AverageCityMPG";
     var selectedFuel = ["Diesel", "Electricity", "Gasoline"];
     var cylinderRange = [0, 12];
@@ -27,8 +28,8 @@ async function init() {
     const makes = [...new Set(rawData.map(d => { return d.Make; }))];
 
     // set the dimensions and margins of the graph
-    const margin = { top: 10, right: 100, bottom: 40, left: 100 };
-    const width = 800 - margin.left - margin.right;
+    const margin = { top: 10, right: 150, bottom: 40, left: 100 };
+    const width = 1100 - margin.left - margin.right;
     const height = 650 - margin.top - margin.bottom;
 
     // append the svg object to the body of the page
@@ -102,7 +103,7 @@ async function init() {
     legendWidth = 30;
     svg.append("g")
         .attr("class", "legendLinear")
-        .attr("transform", "translate(" + (width - legendWidth) + "," + margin.top + ")");
+        .attr("transform", "translate(" + (margin.left + width - 0.5 * margin.right) + "," + margin.top + ")");
 
     var legendLinear = d3.legendColor()
         .shapeWidth(legendWidth)
@@ -137,13 +138,6 @@ async function init() {
         .call(makeAnnotations);        
 
     // Add Engine Cylinders slider
-    const formatSliderLabel = range => { 
-        return "Engine Cylinders - (" +
-            range
-                .map(d3.format('1.0f'))
-                .join(' - ')
-            + ")"
-    };
     var sliderRange = d3.sliderBottom()
         .min(0)
         .max(12)
@@ -151,12 +145,16 @@ async function init() {
         .tickFormat(d3.format('2.0f'))
         .ticks(13)
         .default([0, 12])
-        .fill('#2196f3')
+        .fill('#2196f3');
+    
+    sliderRange
         .on('end', range => {
+            if (scene < 4) {
+                sliderRange.silentValue([0, 12]);
+                return;
+            }
+
             cylinderRange = range;
-            d3.select('p#slider-label').text(
-                formatSliderLabel(cylinderRange)
-            );
             update(cylinderRange, selectedFuel, measure);
         });
     
@@ -168,10 +166,6 @@ async function init() {
         .attr('transform', 'translate(30,30)');
     
     gRange.call(sliderRange);
-    
-    d3.select('p#slider-label').text(
-        formatSliderLabel(sliderRange.value())
-    );
 
     d3.select("form#checkbox-selection")
         .selectAll(("input"))
@@ -190,6 +184,108 @@ async function init() {
     d3.select("select#dropdown-selection")
         .on("change", function() {
             measure = this.value;
+            update(cylinderRange, selectedFuel, measure);
+        });
+
+    d3.select("button#arrow-previous")
+        .on("click", function() {
+            scene -= 1;
+
+            d3.select("button#arrow-next")
+                .property("disabled", false);
+
+            if (scene < 4) {
+                cylinderRange = [0, 12];
+                sliderRange.value(cylinderRange);
+
+                selectedFuel = ["Electricity"];
+                d3.select("form#checkbox-selection")
+                    .select("input[value=Diesel]")
+                    .property("checked", true);
+                d3.select("form#checkbox-selection")
+                    .select("input[value=Gasoline]")
+                    .property("checked", true);
+            }
+
+            if (scene < 3) {
+                measure = "AverageHighwayMPG";
+                d3.select("select#dropdown-selection")
+                    .select("option[value=" + measure + "]")
+                    .property("selected", true);
+
+                selectedFuel = ["Diesel", "Electricity", "Gasoline"];
+                d3.select("form#checkbox-selection")
+                    .selectAll("input")
+                    .property("disabled", true)
+                    .property("checked", false);
+            }
+
+            if (scene < 2) {
+                measure = "AverageCityMPG";
+                d3.select("select#dropdown-selection")
+                    .selectAll("option")
+                    .property("disabled", true)
+                    .property("selected", false);
+                d3.select("select#dropdown-selection")
+                    .select("option[value=" + measure + "]")
+                    .property("selected", true);
+            }
+
+            if (scene == 1) {
+                this.disabled = true;
+            }
+
+            update(cylinderRange, selectedFuel, measure);
+        });
+
+    d3.select("button#arrow-next")
+        .on("click", function() {
+            scene += 1;
+
+            d3.select("button#arrow-previous")
+                .property("disabled", false);
+
+            if (scene >= 2) {
+                d3.select("select#dropdown-selection")
+                    .selectAll("option")
+                    .property("disabled", false);
+                measure = "AverageHighwayMPG";
+                d3.select("select#dropdown-selection")
+                    .select("option[value=" + measure + "]")
+                    .property("selected", true);
+            }
+
+            if (scene >= 3) {
+                measure = "AverageCombinedMPG";
+                d3.select("select#dropdown-selection")
+                    .select("option[value=" + measure + "]")
+                    .property("selected", true);
+
+                d3.select("form#checkbox-selection")
+                    .selectAll("input")
+                    .property("disabled", false);
+
+                selectedFuel = ["Electricity"];
+                d3.select("form#checkbox-selection")
+                    .select("input[value=Diesel]")
+                    .property("checked", true);
+                d3.select("form#checkbox-selection")
+                    .select("input[value=Gasoline]")
+                    .property("checked", true);
+            }
+
+            if (scene == 4) {
+                this.disabled = true;
+
+                selectedFuel = ["Diesel", "Electricity", "Gasoline"];
+                d3.select("form#checkbox-selection")
+                    .selectAll("input")
+                    .property("checked", false);
+
+                cylinderRange = [0, 4];
+                sliderRange.value(cylinderRange);
+            }
+
             update(cylinderRange, selectedFuel, measure);
         });
 

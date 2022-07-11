@@ -14,8 +14,42 @@
 
         .grid-container {
             display: grid;
-            grid-template-columns: 1fr 1fr 1fr;
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             grid-gap: 20px;
+        }
+
+        .button {
+            /* Center the content */
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            float: left;
+
+            /* Spacing */
+            padding: 8px;
+        }
+
+        .button__arrow {
+            /* Transparent background */
+            background-color: transparent;
+
+            /* Size */
+            height: 12px;
+            width: 12px;
+        }
+
+        .button__arrow--right {
+            /* Edges */
+            border-right: 1px solid rgba(0, 0, 0, 0.3);
+            border-top: 1px solid rgba(0, 0, 0, 0.3);
+            transform: translateX(-25%) rotate(45deg);
+        }
+
+        .button__arrow--left {
+            /* Edges */
+            border-bottom: 1px solid rgba(0, 0, 0, 0.3);
+            border-left: 1px solid rgba(0, 0, 0, 0.3);
+            transform: translateX(25%) rotate(45deg);
         }
     </style>
 </head>
@@ -33,60 +67,85 @@
     <!-- Load d3-simple-slider -->
     <script src="https://unpkg.com/d3-simple-slider"></script>
 
+    <h1>Fuel Efficiency Trends</h1>
+
     <!-- Create a div where the graph will take place -->
     <div id="narrative_visualization"></div>
 
     <div class="grid-container">
 
         <div class="grid-child">
-            <!-- Create a compound control for the Engine Cylinder slider -->
-            <div class="row align-items-center">
-                <div class="col-sm-2">
-                    <p id="slider-label"></p>
-                </div>
-                <div class="col-sm">
-                    <div id="slider-range"></div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="grid-child">
-            <!-- Create a compound control for the Fuel type selection -->
-            <div class="row align-items-center">
-                <div class="col-sm-2">
-                    <p id="checkbox-label">
-                        Exclude Fuel Type:
+            <!-- Create a compound control for navigating the slide show -->
+            <div>
+                <div>
+                    <p id="buttons-label">
+                        Navigate Slideshow:
                     </p>
                 </div>
-                <div class="col-sm">
-                    <form id="checkbox-selection" autocomplete="off">
-                        <input type="checkbox" value="Diesel" unchecked>Diesel<br>
-                        <input type="checkbox" value="Electricity" unchecked>Electricity<br>
-                        <input type="checkbox" value="Gasoline" unchecked>Gasoline<br>
-                    </form>
+                <div>
+                    <button class="button" id="arrow-previous" disabled>
+                        <div class="button__arrow button__arrow--left"></div>
+                        Previous
+                    </button>
+                    <button class="button" id="arrow-next">
+                        Next
+                        <div class="button__arrow button__arrow--right"></div>
+                    </button>
                 </div>
             </div>
         </div>
-        
+
         <div class="grid-child">
             <!-- Create a compound control for the Measure selection -->
-            <div class="row align-items-center">
-                <div class="col-sm-2">
+            <div>
+                <div>
                     <p id="dropdown-label">
                         Select Measure:
                     </p>
                 </div>
-                <div class="col-sm">
+                <div>
                     <select id="dropdown-selection" autocomplete="off">
-                        <option value="AverageCityMPG" selected>Average City MPG</option>
-                        <option value="AverageHighwayMPG">Average Highway MPG</option>
-                        <option value="AverageCombinedMPG">Average Combined MPG</option>
+                        <option value="AverageCityMPG" selected disabled>Average City MPG</option>
+                        <option value="AverageHighwayMPG" disabled>Average Highway MPG</option>
+                        <option value="AverageCombinedMPG" disabled>Average Combined MPG</option>
                     </select>
                 </div>
             </div>
         </div>
 
-      </div>
+        <div class="grid-child">
+            <!-- Create a compound control for the Fuel type selection -->
+            <div>
+                <div>
+                    <p id="checkbox-label">
+                        Exclude Fuel Type:
+                    </p>
+                </div>
+                <div>
+                    <form id="checkbox-selection" autocomplete="off">
+                        <input type="checkbox" value="Diesel" unchecked disabled>Diesel<br>
+                        <input type="checkbox" value="Electricity" unchecked disabled>Electricity<br>
+                        <input type="checkbox" value="Gasoline" unchecked disabled>Gasoline<br>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-child">
+            <!-- Create a compound control for the Engine Cylinder slider -->
+            <div>
+                <div>
+                    <p id="slider-label">
+                        Restrict Engine Cylinders:
+                    </p>
+                </div>
+                <div>
+                    <div id="slider-range"></div>
+                </div>
+            </div>
+        </div>
+
+    </div>
 
     <!-- Load custom code -->
     <script src="visualization.js" type="text/JavaScript"></script>
