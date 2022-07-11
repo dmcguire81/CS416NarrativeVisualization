@@ -11,6 +11,12 @@
         .tick line {
             stroke: #EBEBEB;
         }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+        }
     </style>
 </head>
 
@@ -30,15 +36,37 @@
     <!-- Create a div where the graph will take place -->
     <div id="narrative_visualization"></div>
 
-    <!-- Create a compound control for the Engine Cylinder slider -->
-    <div class="row align-items-center">
-        <div class="col-sm-2">
-            <p id="slider-label"></p>
+    <div class="grid-container">
+
+        <div class="grid-child">
+            <!-- Create a compound control for the Engine Cylinder slider -->
+            <div class="row align-items-center">
+                <div class="col-sm-2">
+                    <p id="slider-label"></p>
+                </div>
+                <div class="col-sm">
+                    <div id="slider-range"></div>
+                </div>
+            </div>
         </div>
-        <div class="col-sm">
-            <div id="slider-range"></div>
+        
+        <div class="grid-child">
+            <!-- Create a compound control for the Fuel type selection -->
+            <div class="row align-items-center">
+                <div class="col-sm-2">
+                    <p id="checkbox-label"></p>
+                </div>
+                <div class="col-sm">
+                    <form id="checkbox-selection">
+                        <input type="checkbox" value="Diesel">Diesel<br>
+                        <input type="checkbox" value="Electricity" >Electricity<br>
+                        <input type="checkbox" value="Gasoline">Gasoline<br>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
+        
+      </div>
 
     <!-- Load custom code -->
     <script src="visualization.js" type="text/JavaScript"></script>

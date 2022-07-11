@@ -152,11 +152,12 @@ async function init() {
         .ticks(13)
         .default([0, 12])
         .fill('#2196f3')
-        .on('end', cylinderRange => {
+        .on('end', range => {
+            cylinderRange = range;
             d3.select('p#slider-label').text(
                 formatSliderLabel(cylinderRange)
             );
-            update(cylinderRange)
+            update(cylinderRange, selectedFuel);
         });
     
     var gRange = d3.select('div#slider-range')
@@ -172,7 +173,24 @@ async function init() {
         formatSliderLabel(sliderRange.value())
     );
 
-    function update(cylinderRange) {
+    d3.select("form#checkbox-selection")
+        .selectAll(("input")).on("change", function() {
+            if (this.checked) {
+                selectedFuel = selectedFuel.filter(d => { return d != this.value; });
+            }
+            else
+            {
+                selectedFuel.push(this.value);
+                selectedFuel.sort();
+            }
+            update(cylinderRange, selectedFuel);
+        });
+
+    d3.select('p#checkbox-label').text(
+        "Exclude Fuel Type:"
+    );
+
+    function update(cylinderRange, selectedFuel) {
         // Process data according to parameters
         const inSelectedFuel = d => { return selectedFuel.includes(d.Fuel); };
         const inCylinderRange = d => { return d.EngineCylinders >= cylinderRange[0] && d.EngineCylinders <= cylinderRange[1]; };
@@ -197,5 +215,5 @@ async function init() {
                 .style("fill", d => { return color(d.EngineCylinders) });
     }
 
-    update(cylinderRange);
+    update(cylinderRange, selectedFuel);
 }
