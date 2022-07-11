@@ -116,26 +116,94 @@ async function init() {
     svg.select(".legendLinear")
         .call(legendLinear);
 
-    // Features of the annotation
+    // Features of the annotation, by scene
     const annotations = [
-        {
-            note: {
-                label: "Tesla appears dominant in " + measureLabel,
-                title: "Dominant"
+        // Scene 1
+        [
+            {
+                note: {
+                    title: "Market Dominance",
+                    label: "Tesla appears dominant in Average City MPG",
+                    wrap: 400
+                },
+                x: 500,
+                y: 10,
+                dy: 50,
+                dx: 50
+            }
+        ],
+        // Scene 2
+        [
+            {
+                note: {
+                    title: "Trend Setter",
+                    label: "Most electric vehicle efficiency decreases on the Highway; Tesla's improves",
+                    wrap: 200
+                },
+                x: 550,
+                y: 10,
+                dy: 50,
+                dx: 50
+            }
+        ],
+        // Scene 3
+        [
+            {
+                note: {
+                    title: "Category Leader",
+                    label: "However, Telsa is not the most fuel-efficienct electric fleet; Hyundai is",
+                    wrap: 300
+                },
+                x: 750,
+                y: 20,
+                dy: 150,
+                dx: -50
+            }
+        ],
+        // Scene 4
+        [
+            {
+                type: d3.annotationCalloutCircle,
+                note: {
+                    label: "Whittling out the 'gas guzzlers' from traditional manufacturers' offerings, the efficiency gap widens",
+                    title: "Electric Evolution",
+                    wrap: 300
+                },                        
+                subject: {
+                    radius: 75
+                },
+                x: 250,
+                y: 75,
+                dy: 100,
+                dx: 150
             },
-            x: 350,
-            y: 10,
-            dy: 50,
-            dx: 50
-        }
+            {
+                note: {
+                    label: "3-Cylinder specialist, Smart Car, is left behind without an Electric offering",
+                    title: "Gasoline Extinction",
+                    wrap: 300
+                },
+                connector: {
+                  end: "arrow"
+                },
+                x: 200,
+                y: 115,
+                dy: 200,
+                dx: 150
+            }
+        ],
     ];
 
     // Add annotation to the chart
     const makeAnnotations = d3.annotation()
-        .annotations(annotations);
+        .annotations(annotations[0]);
+
     svg
         .append("g")
-        .call(makeAnnotations);        
+        .attr("class", "annotation");
+    
+    d3.select(".annotation")
+        .call(makeAnnotations);
 
     // Add Engine Cylinders slider
     var sliderRange = d3.sliderBottom()
@@ -156,6 +224,8 @@ async function init() {
 
             cylinderRange = range;
             update(cylinderRange, selectedFuel, measure);
+            d3.select(".annotation")
+                .call(d3.annotation());
         });
     
     var gRange = d3.select('div#slider-range')
@@ -179,12 +249,16 @@ async function init() {
                 selectedFuel.sort();
             }
             update(cylinderRange, selectedFuel, measure);
+            d3.select(".annotation")
+                .call(d3.annotation());
         });
 
     d3.select("select#dropdown-selection")
         .on("change", function() {
             measure = this.value;
             update(cylinderRange, selectedFuel, measure);
+            d3.select(".annotation")
+                .call(d3.annotation());
         });
 
     d3.select("button#arrow-previous")
@@ -236,6 +310,8 @@ async function init() {
             }
 
             update(cylinderRange, selectedFuel, measure);
+            d3.select(".annotation")
+                .call(d3.annotation().annotations(annotations[scene - 1]));
         });
 
     d3.select("button#arrow-next")
@@ -287,6 +363,8 @@ async function init() {
             }
 
             update(cylinderRange, selectedFuel, measure);
+            d3.select(".annotation")
+                .call(d3.annotation().annotations(annotations[scene - 1]));
         });
 
     function update(cylinderRange, selectedFuel, measure) {
