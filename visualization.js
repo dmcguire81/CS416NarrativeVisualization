@@ -269,6 +269,8 @@ async function init() {
                 .property("disabled", false);
 
             if (scene < 4) {
+                d3.select("p#slider-label")
+                    .property("style", "color:gray");
                 cylinderRange = [0, 12];
                 sliderRange.value(cylinderRange);
 
@@ -287,6 +289,8 @@ async function init() {
                     .select("option[value=" + measure + "]")
                     .property("selected", true);
 
+                d3.select("p#checkbox-label")
+                    .property("style", "color:grey");
                 selectedFuel = ["Diesel", "Electricity", "Gasoline"];
                 d3.select("form#checkbox-selection")
                     .selectAll("input")
@@ -295,6 +299,8 @@ async function init() {
             }
 
             if (scene < 2) {
+                d3.select("p#dropdown-label")
+                    .property("style", "color:grey");
                 measure = "AverageCityMPG";
                 d3.select("select#dropdown-selection")
                     .selectAll("option")
@@ -322,6 +328,8 @@ async function init() {
                 .property("disabled", false);
 
             if (scene >= 2) {
+                d3.select("p#dropdown-label")
+                    .property("style", "color:black");
                 d3.select("select#dropdown-selection")
                     .selectAll("option")
                     .property("disabled", false);
@@ -337,6 +345,8 @@ async function init() {
                     .select("option[value=" + measure + "]")
                     .property("selected", true);
 
+                d3.select("p#checkbox-label")
+                    .property("style", "color:black");
                 d3.select("form#checkbox-selection")
                     .selectAll("input")
                     .property("disabled", false);
@@ -353,6 +363,8 @@ async function init() {
             if (scene == 4) {
                 this.disabled = true;
 
+                d3.select("p#slider-label")
+                    .property("style", "color:black");
                 selectedFuel = ["Diesel", "Electricity", "Gasoline"];
                 d3.select("form#checkbox-selection")
                     .selectAll("input")
