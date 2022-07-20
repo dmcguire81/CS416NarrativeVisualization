@@ -100,21 +100,39 @@ async function init() {
         .style("fill", d => { return color(d.EngineCylinders) });
 
     // Add legend
-    legendWidth = 30;
+    const cylinderCount = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+    const legendWidth = 30;
     svg.append("g")
         .attr("class", "legendLinear")
         .attr("transform", "translate(" + (margin.left + width - 0.5 * margin.right) + "," + margin.top + ")");
 
-    var legendLinear = d3.legendColor()
-        .shapeWidth(legendWidth)
-        .cells(13)
-        .orient('vertical')
-        .title("Engine Cylinders")
-        .labelFormat(d3.format(".0f"))
-        .scale(color);
+    svg.select(".legendLinear")
+        .selectAll(".legendColor")
+        .data(cylinderCount)
+        .enter()
+        .append("rect")
+        .attr("class", "legendColor")
+        .attr("x", () => { return 0; })
+        .attr("y", (d, i) => { return (i + 1) * 20; })
+        .attr("height", 15)
+        .attr("width", d => { return legendWidth; })
+        .style("fill", d => { return color(d) });
 
     svg.select(".legendLinear")
-        .call(legendLinear);
+        .selectAll(".legendLabel")
+        .data(cylinderCount)
+        .enter()
+        .append("text")
+        .attr("class", "legendLabel")
+        .attr("x", () => { return legendWidth + 10; })
+        .attr("y", (d, i) => { return (i + 1.7) * 20; })
+        .attr("height", 15)
+        .attr("width", d => { return legendWidth; })
+        .text(d => { return d });
+
+    svg.select(".legendLinear")
+        .append("text")
+        .text("Engine Cylinders")
 
     // Features of the annotation, by scene
     const annotations = [
