@@ -204,38 +204,20 @@ async function init() {
     
     d3.select(".annotation")
         .call(makeAnnotations);
-
-    // Add Engine Cylinders slider
-    var sliderRange = d3.sliderBottom()
-        .min(0)
-        .max(12)
-        .width(300)
-        .tickFormat(d3.format('2.0f'))
-        .ticks(13)
-        .default([0, 12])
-        .fill('#2196f3');
     
-    sliderRange
-        .on('end', range => {
+    d3.select("input#slider-range")
+        .on("change", function() {
             if (scene < 4) {
-                sliderRange.silentValue([0, 12]);
+                this.value = 12;
+                this.disabled = true;
                 return;
             }
 
-            cylinderRange = range;
+            cylinderRange = [0, parseInt(this.value)];
             update(cylinderRange, selectedFuel, measure);
             d3.select(".annotation")
                 .call(d3.annotation());
         });
-    
-    var gRange = d3.select('div#slider-range')
-        .append('svg')
-        .attr('width', 500)
-        .attr('height', 100)
-        .append('g')
-        .attr('transform', 'translate(30,30)');
-    
-    gRange.call(sliderRange);
 
     d3.select("form#checkbox-selection")
         .selectAll(("input"))
@@ -272,7 +254,9 @@ async function init() {
                 d3.select("p#slider-label")
                     .property("style", "color:gray");
                 cylinderRange = [0, 12];
-                sliderRange.value(cylinderRange);
+                d3.select("input#slider-range")
+                    .property("value", cylinderRange[1])
+                    .property("disabled", true);
 
                 selectedFuel = ["Electricity"];
                 d3.select("form#checkbox-selection")
@@ -371,7 +355,9 @@ async function init() {
                     .property("checked", false);
 
                 cylinderRange = [0, 4];
-                sliderRange.value(cylinderRange);
+                d3.select("input#slider-range")
+                    .property("value", cylinderRange[1])
+                    .property("disabled", false);
             }
 
             update(cylinderRange, selectedFuel, measure);

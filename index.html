@@ -64,9 +64,6 @@
     <!-- Load d3-legend -->
     <script src="https://rawgit.com/susielu/d3-legend/master/d3-legend.min.js"></script>
 
-    <!-- Load d3-simple-slider -->
-    <script src="https://unpkg.com/d3-simple-slider"></script>
-
     <h1>Fuel Efficiency Trends</h1>
 
     <!-- Create a div where the graph will take place -->
@@ -83,11 +80,11 @@
                     </p>
                 </div>
                 <div>
-                    <button class="button" id="arrow-previous" disabled>
+                    <button class="button" id="arrow-previous" disabled autocomplete="off">
                         <div class="button__arrow button__arrow--left"></div>
                         Previous
                     </button>
-                    <button class="button" id="arrow-next">
+                    <button class="button" id="arrow-next" autocomplete="off">
                         Next
                         <div class="button__arrow button__arrow--right"></div>
                     </button>
@@ -140,7 +137,22 @@
                     </p>
                 </div>
                 <div>
-                    <div id="slider-range"></div>
+                    <datalist id="cylinders">
+                        <option value="0" label="0"></option>
+                        <option value="1"></option>
+                        <option value="2"></option>
+                        <option value="3"></option>
+                        <option value="4"></option>
+                        <option value="5"></option>
+                        <option value="6" label="6"></option>
+                        <option value="7"></option>
+                        <option value="8"></option>
+                        <option value="9"></option>
+                        <option value="10"></option>
+                        <option value="11"></option>
+                        <option value="12" label="12"></option>
+                    </datalist>
+                    <input type="range" list="cylinders" value="12" max="12" id="slider-range" autocomplete="off" disabled>
                 </div>
             </div>
         </div>
