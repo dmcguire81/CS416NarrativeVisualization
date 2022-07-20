@@ -232,6 +232,8 @@ async function init() {
             }
 
             cylinderRange = [0, parseInt(this.value)];
+            d3.select("output#slider-value")
+                .property("value", cylinderRange[1]);
             update(cylinderRange, selectedFuel, measure);
             d3.select(".annotation")
                 .call(d3.annotation());
@@ -275,6 +277,8 @@ async function init() {
                 d3.select("input#slider-range")
                     .property("value", cylinderRange[1])
                     .property("disabled", true);
+                d3.select("output#slider-value")
+                    .property("value", cylinderRange[1]);
 
                 selectedFuel = ["Electricity"];
                 d3.select("form#checkbox-selection")
@@ -376,6 +380,8 @@ async function init() {
                 d3.select("input#slider-range")
                     .property("value", cylinderRange[1])
                     .property("disabled", false);
+                d3.select("output#slider-value")
+                    .property("value", cylinderRange[1]);
             }
 
             update(cylinderRange, selectedFuel, measure);
